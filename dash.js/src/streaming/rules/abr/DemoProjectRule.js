@@ -10,6 +10,7 @@ function DemoProjectRule(config) {
 
     const dashMetrics = config.dashMetrics;
     const metricsModel = config.metricsModel;
+    const streamProcessor = config.streamProcessor;
     //const mediaPlayerModel = config.mediaPlayerModel;
     //const eventBus = EventBus(context).getInstance();
 
@@ -21,7 +22,6 @@ function DemoProjectRule(config) {
         const mediaInfo = rulesContext.getMediaInfo();
         const mediaType = rulesContext.getMediaType();
         const abrController = rulesContext.getAbrController();
-        const streamProcessor = config.streamProcessor;
         const bufferController = streamProcessor.getBufferController();
 
         const bufferLevel = dashMetrics.getCurrentBufferLevel(metricsModel.getReadOnlyMetricsFor(mediaType));
