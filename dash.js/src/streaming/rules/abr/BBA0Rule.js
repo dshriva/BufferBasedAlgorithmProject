@@ -4,6 +4,7 @@ let BBA0Rule;
 
 let prevBitrate = 0;
 let startTime = (new Date()).getTime();
+const bufferLength = 65;
 
 function BBA0RuleClass() {
     console.log('BBA RULE HITTING');
@@ -36,11 +37,9 @@ function BBA0RuleClass() {
         let current = abrController.getQualityFor(mediaType, streamController.getActiveStreamInfo());
 
         let bufferLevel = dashMetrics.getCurrentBufferLevel(metrics);
-        const bufferLength = 70;
+
         const reservoir = (0.1 * bufferLength);
         const cushion = 0.9 * bufferLength;
-		//const maxAllowedBitRate = abrController.setMaxAllowedBitrateFor('video',14932);
-		//const minAllowedBitrate = abrController.setMinAllowedBitrateFor('video',254);
 
         const throughputHistory = abrController.getThroughputHistory();
         const latency = throughputHistory.getAverageLatency(mediaType);
@@ -53,6 +52,16 @@ function BBA0RuleClass() {
 
 
 		console.log('ECE 50863 PROJECT - Time : ' + curTime + ' | Buffer Level :  ' +  Math.ceil(bufferLevel/5) * 5 + ' | previous bitrate : ' + prevBitrate);
+
+		var bufferMap = {};
+		var initLevel = 10;
+		for (let i = 0; i < bitrateList.length && bitrateList.length > 1; i++) {
+			const bit_rate_i = bitrateList[i];
+			bufferMap[(i * 5) + initLevel] = bit_rate_i.bitrate;
+			//console.log('ECE 50863 - Setting buffer level :' + i + ' to : ' + bit_rate_i.bitrate);
+		}
+
+		// BBA 0 algorithm begins
 
 		/*
 		if Rateprev = Rmax then
@@ -102,23 +111,6 @@ function BBA0RuleClass() {
 
 		let rateNext = prevBitrate;
 
-		// construct a map of bufferLevel and Rate
-
-		var bufferMap = {};
-		bufferMap['10'] = 67071;
-		bufferMap['15'] = 254320;
-		bufferMap['20'] = 507246;
-		bufferMap['25'] = 759798;
-		bufferMap['30'] = 1013310;
-		bufferMap['35'] = 1254758;
-		bufferMap['40'] = 1883700;
-		bufferMap['45'] = 3134488;
-		bufferMap['50'] = 4952892;
-		bufferMap['55'] = 9914554;
-		bufferMap['60'] = 14931538;
-		bufferMap['65'] = 14931538;
-		bufferMap['70'] = 14931538;
-
 		/*
 		if Bufnow ≤ r then
 			Ratenext = Rmin
@@ -137,9 +129,9 @@ function BBA0RuleClass() {
 			rateNext = rMin;
 		} else if (bufferLevel >= reservoir + cushion) {
 			rateNext = rMax;
-		} else if (bufferMap[funcBufferLevel] >= ratePlus) {
+		} else if (bufferMap[funcBufferLevel] != null && bufferMap[funcBufferLevel] >= ratePlus) {
 			rateNext = bufferMap[funcBufferLevel - 5];
-        } else if (bufferMap[funcBufferLevel] <= rateMinus ) {
+        } else if (bufferMap[funcBufferLevel] != null && bufferMap[funcBufferLevel] <= rateMinus ) {
 			rateNext = bufferMap[funcBufferLevel + 5];
         } else {
 			rateNext =  prevBitrate;
