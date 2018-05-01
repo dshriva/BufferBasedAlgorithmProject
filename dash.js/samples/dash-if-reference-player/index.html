@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <html ng-app="DashPlayer" lang="en">
+<!-- HTML File required to play the Demo Video
+Code Modification by : Divya, Ashley
+-->
 <head>
     <meta charset="utf-8"/>
     <title>Dash JavaScript Player</title>
@@ -29,8 +32,11 @@
     <script src="../../dist/dash.all.debug.js"></script>
     <script src="../../contrib/akamai/controlbar/ControlBar.js"></script>
     <script src="app/main.js"></script>
-    <script src="app/rules/DownloadRatioRule.js"></script>
-    <script src="app/rules/ThroughputRule.js"></script>
+	<script src="app/rules/BBA0Rule.js"></script> 
+	<!--
+	<script src="app/rules/BBA0RuleConfigVersion.js"></script>
+    <script src="app/rules/DownloadRatioRule.js"></script>  
+    <script src="app/rules/ThroughputRule.js"></script> -->
 
 </head>
 <body ng-controller="DashController" >
@@ -122,7 +128,6 @@
                 <input type="text" class="form-control" ng-model="selectedItem.url">
                 <span class="input-group-btn">
                     <button class="btn btn-default" ng-click="toggleOptionsGutter(!optionsGutter)" ng-cloak>{{getOptionsButtonLabel()}}</button>
-                    <button class="btn btn-default" type="button" ng-click="doStop()">Stop</button>
                     <button class="btn btn-primary" type="button" ng-click="doLoad()">Load</button>
                 </span>
             </div>
@@ -178,14 +183,15 @@
                         <input type="radio" id="abrThroughput" autocomplete="off" name="abrStrategy" ng-click="changeABRStrategy('abrThroughput')">
                         ABR Strategy: Throughput
                     </label>
+					<!--Added Custom BBA-0 Rule in the UI -->
                     <label class="topcoat-checkbox" data-toggle="tooltip" data-placement="right"
-                           title="ABR - Use custom ABR rules">
+                           title="Use custom BBA-0 rule">
                         <input type="checkbox" id="customABRRules" ng-model="customABRRulesSelected" ng-change="toggleUseCustomABRRules()" ng-checked="customABRRulesSelected">
-                        Use Custom ABR Rules
+                        Use Custom BBA-0 Rule
                     </label>
                 </div>
             </div>
-
+			
             <div class="options-item">
                 <div class="options-item-title">DRM Options</div>
                 <div class="options-item-body">

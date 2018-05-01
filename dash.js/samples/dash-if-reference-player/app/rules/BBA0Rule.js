@@ -1,5 +1,11 @@
 /*global dashjs*/
 
+/*
+Implementation for BBA-0 Algorithm (from scratch)
+Initial Development: Divya, Ashley
+Final Implementation of Code: Divya
+*/
+
 let BBA0Rule;
 
 let prevBitrate = 0;

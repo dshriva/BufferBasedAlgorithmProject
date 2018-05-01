@@ -1,3 +1,6 @@
+// File to Add ABR Custom Rules
+// Code modifications in the file by : Divya, Ashley
+
 'use strict';
 
 var app = angular.module('DashPlayer', ['DashSourcesService', 'DashContributorsService', 'DashIFTestVectorsService', 'angular-flot']); /* jshint ignore:line */
@@ -201,10 +204,6 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
     $scope.fastSwitchSelected = true;
     $scope.ABRStrategy = 'abrDynamic';
 
-    // Persistent license
-    $scope.persistentSessionId = {};
-    $scope.selectedKeySystem = null;
-
     // Error management
     $scope.error = '';
     $scope.errorType = '';
@@ -298,20 +297,6 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
         }
     }, $scope);
 
-    $scope.player.on(dashjs.MediaPlayer.events.KEY_SYSTEM_SELECTED, function (e) { /* jshint ignore:line */
-        if (e.data) {
-            $scope.selectedKeySystem = e.data.keySystem.systemString;
-        }
-    }, $scope);
-
-    $scope.player.on(dashjs.MediaPlayer.events.KEY_SESSION_CREATED, function (e) { /* jshint ignore:line */
-        if (e.data) {
-            var session = e.data;
-            if (session.getSessionType() === 'persistent-license') {
-                $scope.persistentSessionId[$scope.selectedItem.url] = session.getSessionID();
-            }
-        }
-    }, $scope);
 
     ////////////////////////////////////////
     //
@@ -331,17 +316,24 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
     $scope.changeABRStrategy = function (strategy) {
         $scope.player.setABRStrategy(strategy);
     };
-
+/* Logic developed for adding Custom ABR Rules */
     $scope.toggleUseCustomABRRules = function () {
         $scope.player.getThumbnail($scope.player.time());
         if ($scope.customABRRulesSelected) {
             $scope.player.useDefaultABRRules(false);
-            $scope.player.addABRCustomRule('qualitySwitchRules', 'DownloadRatioRule', DownloadRatioRule); /* jshint ignore:line */
-            $scope.player.addABRCustomRule('qualitySwitchRules', 'ThroughputRule', CustomThroughputRule); /* jshint ignore:line */
+			$scope.player.addABRCustomRule('qualitySwitchRules', 'BBA0Rule', BBA0Rule);
+			
+			/*$scope.player.addABRCustomRule('qualitySwitchRules', 'BBA0RuleConfigVersion', BBA0RuleConfigVersion);*/
+            /*$scope.player.addABRCustomRule('qualitySwitchRules', 'DownloadRatioRule', DownloadRatioRule); */
+			/* jshint ignore:line */
+           /*$scope.player.addABRCustomRule('qualitySwitchRules', 'ThroughputRule', CustomThroughputRule); */
+			/* jshint ignore:line */
         } else {
             $scope.player.useDefaultABRRules(true);
-            $scope.player.removeABRCustomRule('DownloadRatioRule');
-            $scope.player.removeABRCustomRule('ThroughputRule');
+           $scope.player.removeABRCustomRule('DownloadRatioRule');
+			$scope.player.removeABRCustomRule('ThroughputRule');
+			 $scope.player.removeABRCustomRule('BBA0Rule');
+			//  $scope.player.removeABRCustomRule('BBA0RuleConfigVersion');
         }
     };
 
@@ -382,12 +374,6 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
             };
         } else {
             protData = null;
-        }
-
-        // Check if persistent license session ID is stored for current stream
-        var sessionId = $scope.persistentSessionId[$scope.selectedItem.url];
-        if (sessionId) {
-            protData[$scope.selectedKeySystem].sessionId = sessionId;
         }
 
         var bufferConfig = {
@@ -440,11 +426,6 @@ app.controller('DashController', function ($scope, sources, contributors, dashif
         $scope.player.setTextDefaultEnabled($scope.initialSettings.textEnabled);
         $scope.controlbar.enable();
     };
-
-    $scope.doStop = function () {
-        $scope.player.attachSource(null);
-        $scope.controlbar.reset();
-    }
 
     $scope.changeTrackSwitchMode = function (mode, type) {
         $scope.player.setTrackSwitchModeFor(type, mode);

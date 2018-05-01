@@ -1,32 +1,6 @@
-/**
- * The copyright in this software is being made available under the BSD License,
- * included below. This software may be subject to other third party and contributor
- * rights, including patent rights, and no such rights are granted under this license.
- *
- * Copyright (c) 2016, Dash Industry Forum.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
- *  * Redistributions of source code must retain the above copyright notice, this
- *  list of conditions and the following disclaimer.
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *  this list of conditions and the following disclaimer in the documentation and/or
- *  other materials provided with the distribution.
- *  * Neither the name of Dash Industry Forum nor the names of its
- *  contributors may be used to endorse or promote products derived from this software
- *  without specific prior written permission.
- *
- *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS AS IS AND ANY
- *  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- *  IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
- *  INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- *  NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- *  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- *  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- *  POSSIBILITY OF SUCH DAMAGE.
+/*
+Logging of BOLA Rule for Evaluation procedure
+Code Modification by: Divya
  */
 
 // For a description of the BOLA adaptive bitrate (ABR) algorithm, see http://arxiv.org/abs/1601.06748
@@ -38,14 +12,14 @@ import {HTTPRequest} from '../../vo/metrics/HTTPRequest';
 import EventBus from '../../../core/EventBus';
 import Events from '../../../core/events/Events';
 import Debug from '../../../core/Debug';
-
+let startTime = (new Date()).getTime();
 // BOLA_STATE_ONE_BITRATE   : If there is only one bitrate (or initialization failed), always return NO_CHANGE.
 // BOLA_STATE_STARTUP       : Set placeholder buffer such that we download fragments at most recently measured throughput.
 // BOLA_STATE_STEADY        : Buffer primed, we switch to steady operation.
 // TODO: add BOLA_STATE_SEEK and tune BOLA behavior on seeking
-const BOLA_STATE_ONE_BITRATE    = 0;
-const BOLA_STATE_STARTUP        = 1;
-const BOLA_STATE_STEADY         = 2;
+const BOLA_STATE_ONE_BITRATE = 0;
+const BOLA_STATE_STARTUP = 1;
+const BOLA_STATE_STEADY = 2;
 
 const MINIMUM_BUFFER_S = 10; // BOLA should never add artificial delays if buffer is less than MINIMUM_BUFFER_S.
 const MINIMUM_BUFFER_PER_BITRATE_LEVEL_S = 2;
@@ -383,6 +357,7 @@ function BolaRule(config) {
     }
 
     function getMaxIndex(rulesContext) {
+        log('bola rule hitting');
         const mediaInfo = rulesContext.getMediaInfo();
         const mediaType = rulesContext.getMediaType();
         const metrics = metricsModel.getReadOnlyMetricsFor(mediaType);
@@ -415,7 +390,8 @@ function BolaRule(config) {
         const safeThroughput = throughputHistory.getSafeAverageThroughput(mediaType, isDynamic);
         const latency = throughputHistory.getAverageLatency(mediaType);
         let quality;
-
+        let curTime = (new Date()).getTime() - startTime;
+        console.log('ECE 50863 PROJECT - Time : ' + curTime + ' | Average Bitrate selected is : ' + Math.round(throughput));
         switchRequest.reason.state = bolaState.state;
         switchRequest.reason.throughput = throughput;
         switchRequest.reason.latency = latency;
